@@ -1,12 +1,11 @@
 #basic API start
-from flask import Flask, jsonify, abort
+from flask import Flask, jsonify, abort, request
 from cruiseItem import cruiseItem
-from flask import Flask, request
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 from json import dumps
 
-db_connect = create_engine(database path goes here)
+db_connect = create_engine('sqlite:///Carnivorecruise.sqlite')
 app = Flask(__name__)
 app.json_encoder.default = lambda self, o: o.to_joson()
 api = Api(app)
@@ -16,8 +15,8 @@ InventoryArr = {}
 
 def get_cruiseitemArr():
     conn = db_connect.connect() # connect to database
-    InventoryArr = conn.execute("select * from CruiseItem") #Perform query for all CruiseItems in db
-    return jsonify(InventoryArr) #converts query result into a json using jsonify
+    query = conn.execute("select * from CruiseItem") #Perform query for all CruiseItems in db
+    return jsonify(query) #converts query result into a json using jsonify
 
 def get_cruiseitemArr_byLoc(fromLocation):
     conn = db_connect.connect() #connect to database
@@ -26,7 +25,7 @@ def get_cruiseitemArr_byLoc(fromLocation):
 
 @app.route('/inventory', methods=['GET'])
 def get_cruiseitems():
-    return jsonify(status="ok",InventoryArr=InventoryArr)
+    return jsonify(status="ok",InventoryArr=get_cruiseitemArr())
 
 
 @app.route('/inventory/location/< location >', methods=['GET'])
