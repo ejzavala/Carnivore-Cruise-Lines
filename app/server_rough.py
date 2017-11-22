@@ -39,13 +39,13 @@ def get_cruiseHistory():
     return result
 
 #changes cruiseItem Table
-def put_changeAvail(cruise_item_id)
+def put_changeAvail(cruise_item_id):
     conn = db_connect.connect()
     query = conn.execute("UPDATE cruiseItem SET available = False WHERE itemID = '%s'"%str(cruise_item_id))
     return
 
 @app.route('/system/purchase/<itemID>')
-def put_change_avail_api(item_id)
+def put_change_avail_api(item_id):
     return jsonify (status="ok", put_changeAvail(item_id))
 
 @app.route('/inventory', methods=['GET'])
