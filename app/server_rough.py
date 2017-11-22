@@ -57,8 +57,13 @@ def put_changeAvail(cruise_item_id):
     conn = db_connect.connect()
     query = conn.execute("SELECT ItemID FROM cruiseItem WHERE itemID = '%s'"%(cruise_item_id))
     if (len(query.cursor.fetchall()) != 0):
-        query = conn.execute("UPDATE cruiseItem SET available = 0 WHERE itemID = '%s'"%str(cruise_item_id))
-        return True
+        query = conn.execute("SELECT available FROM cruiseItem WHERE itemID = '%s'"%(cruise_item_id))
+        check = query.cursor.fetchall()
+        if (check[0][0] != 0):
+            query = conn.execute("UPDATE cruiseItem SET available = 0 WHERE itemID = '%s'"%str(cruise_item_id))
+            return True
+        else:
+            return False
     else:
         return False
 
