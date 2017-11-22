@@ -38,6 +38,16 @@ def get_cruiseHistory():
     result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
     return result
 
+#changes cruiseItem Table
+def put_changeAvail(cruise_item_id)
+    conn = db_connect.connect()
+    query = conn.execute("UPDATE cruiseItem SET available = False WHERE itemID = '%s'"%str(cruise_item_id))
+    return
+
+@app.route('/system/purchase/<itemID>')
+def put_change_avail_api(item_id)
+    return jsonify (status="ok", put_changeAvail(item_id))
+
 @app.route('/inventory', methods=['GET'])
 def get_cruiseitems():
     return jsonify(status="ok",InventoryArr=get_cruiseitemArr())
