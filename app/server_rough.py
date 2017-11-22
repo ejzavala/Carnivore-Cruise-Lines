@@ -38,6 +38,20 @@ def get_cruiseHistory():
     result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
     return result
 
+def add_to_history(cruise_item_idnum):
+    conn = db_connect.connect()
+    queryhistory = conn.execute("SELECT numberSold FROM cruiseHistory WHERE itemID = '%s'"%(cruise_item_idnum))
+    numberactuallysold = queryhistory.cursor.fetchall()
+    #print(numberactuallysold)
+    if len(numberactuallysold) != 0:
+        numberactuallysold = queryhistory.cursor.fetchall()
+        numberactuallysold = numberactuallysold[0][0]
+        print(numberactuallysold)
+        numberactuallysold = int(numberactuallysold+1)
+        query = conn.execute("UPDATE cruiseHistory SET numberSold = (?) WHERE itemID = (?)",(numberactuallysold, cruise_item_idnum))
+    else:
+        query = conn.execute("INSERT INTO cruiseHistory (itemID, numberSold) VALUES ('%s', 1)" %str(cruise_item_idnum))
+
 #changes cruiseItem Table
 def put_changeAvail(cruise_item_id):
     conn = db_connect.connect()
