@@ -55,7 +55,7 @@ def add_to_history(cruise_item_idnum):
 #changes cruiseItem Table
 def put_changeAvail(cruise_item_id):
     conn = db_connect.connect()
-    query = conn.execute("UPDATE cruiseItem SET available = False WHERE itemID = '%s'"%str(cruise_item_id))
+    query = conn.execute("UPDATE cruiseItem SET available = 0 WHERE itemID = '%s'"%str(cruise_item_id))
     return
 
 @app.route('/system/purchase/<itemID>')
