@@ -19,7 +19,7 @@ def get_cruiseitemArr():
     InventoryArr = query.cursor.fetchall()
     query = conn.execute("select itemID, cruiseLinerID, roomID, available, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration from cruiseItem;")
     result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
-    return jsonify(result)
+    return result
 
 def get_cruiseitemArr_byLoc(Location):
     conn = db_connect.connect() #connect to database
@@ -28,7 +28,7 @@ def get_cruiseitemArr_byLoc(Location):
     query = conn.execute("select itemID, cruiseLinerID, roomID, available, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration from cruiseItem where fromLocation ='%s';"%str(Location))
     result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
     #print(InventoryArr)
-    return jsonify(result) #convert query result into a json
+    return result #convert query result into a json
 
 def get_cruiseHistory():
     conn = db_connect.connect() # connect to database
