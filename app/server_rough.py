@@ -38,6 +38,39 @@ def get_cruiseHistory():
     result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
     return result
 
+def add_to_history(cruise_item_idnum):
+    conn = db_connect.connect()
+    queryhistory = conn.execute("SELECT numberSold FROM cruiseHistory WHERE itemID = '%s'"%(cruise_item_idnum))
+    numberactuallysold = queryhistory.cursor.fetchall()
+    #print(numberactuallysold)
+    if len(numberactuallysold) != 0:
+        numberactuallysold = queryhistory.cursor.fetchall()
+        numberactuallysold = numberactuallysold[0][0]
+        print(numberactuallysold)
+        numberactuallysold = int(numberactuallysold+1)
+        query = conn.execute("UPDATE cruiseHistory SET numberSold = (?) WHERE itemID = (?)",(numberactuallysold, cruise_item_idnum))
+    else:
+        query = conn.execute("INSERT INTO cruiseHistory (itemID, numberSold) VALUES ('%s', 1)" %str(cruise_item_idnum))
+
+#changes cruiseItem Table
+def put_changeAvail(cruise_item_id):
+    conn = db_connect.connect()
+    query = conn.execute("SELECT ItemID FROM cruiseItem WHERE itemID = '%s'"%(cruise_item_id))
+    if (len(query.cursor.fetchall()) != 0):
+        query = conn.execute("UPDATE cruiseItem SET available = 0 WHERE itemID = '%s'"%str(cruise_item_id))
+        return True
+    else:
+        return False
+
+
+@app.route('/system/purchase/<item_id>')
+def put_change_avail_api(item_id):
+    if (put_changeAvail(item_id) == False):
+        return jsonify(status="Item you tried to purchase does not exist in database! WHAT WERE YOU THINKING?")
+    else:
+        add_to_history(item_id)
+        return jsonify (status="Item successfully purchased")
+
 @app.route('/inventory', methods=['GET'])
 def get_cruiseitems():
     return jsonify(status="ok",InventoryArr=get_cruiseitemArr())
@@ -56,4 +89,4 @@ def get_cruisehistory():
 
 
 if __name__ == '__main__':
-	app.run("0.0.0.0", 80)
+    app.run("0.0.0.0", 80)
