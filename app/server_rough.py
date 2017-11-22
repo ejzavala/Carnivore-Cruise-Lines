@@ -60,7 +60,7 @@ def put_changeAvail(cruise_item_id):
 
 @app.route('/system/purchase/<itemID>')
 def put_change_avail_api(item_id):
-    return jsonify (status="ok", put_changeAvail(item_id))
+    return jsonify (status="ok", put_changeAvail(item_id), add_to_history(item_id))
 
 @app.route('/inventory', methods=['GET'])
 def get_cruiseitems():
