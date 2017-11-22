@@ -58,7 +58,7 @@ def put_changeAvail(cruise_item_id):
     query = conn.execute("UPDATE cruiseItem SET available = 0 WHERE itemID = '%s'"%str(cruise_item_id))
     return
 
-@app.route('/system/purchase/<itemID>')
+@app.route('/system/purchase/<item_id>')
 def put_change_avail_api(item_id):
     put_changeAvail(item_id)
     add_to_history(item_id)
