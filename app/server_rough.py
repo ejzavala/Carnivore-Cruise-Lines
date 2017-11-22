@@ -11,6 +11,7 @@ app.app_context()
 
 # Array to store the objects
 InventoryArr = {}
+HistoryArr = {}
 
 def get_cruiseitemArr():
     conn = db_connect.connect() # connect to database
@@ -29,6 +30,14 @@ def get_cruiseitemArr_byLoc(Location):
     #print(InventoryArr)
     return jsonify(result) #convert query result into a json
 
+def get_cruiseHistory():
+    conn = db_connect.connect() # connect to database
+    query = conn.execute("select * from cruiseHistory")
+    HistoryArr = query.cursor.fetchall()
+    query = conn.execute("select itemID, numberSold from cruiseHistory;") 
+    result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
+    return result
+
 @app.route('/inventory', methods=['GET'])
 def get_cruiseitems():
     return jsonify(status="ok",InventoryArr=get_cruiseitemArr())
@@ -39,6 +48,11 @@ def get_cruiseitems_by_location(city, state):
     loc_and_state = str(city + ',' + ' ' + state)
     print (loc_and_state)
     return jsonify(status="ok", InventoryArr=get_cruiseitemArr_byLoc(loc_and_state))
+
+@app.route('/system/history', methods=['GET'])
+def get_cruisehistory():
+    return jsonify(status="ok", HistoryArr = get_cruiseHistory())
+
 
 
 if __name__ == '__main__':
