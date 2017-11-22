@@ -69,7 +69,7 @@ def put_change_avail_api(item_id):
         return jsonify(status="Item you tried to purchase does not exist in database! WHAT WERE YOU THINKING?")
     else:
         add_to_history(item_id)
-        return jsonify (status="ok")
+        return jsonify (status="Item successfully purchased")
 
 @app.route('/inventory', methods=['GET'])
 def get_cruiseitems():
