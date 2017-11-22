@@ -16,15 +16,18 @@ def get_cruiseitemArr():
     conn = db_connect.connect() # connect to database
     query = conn.execute("select * from CruiseItem") #Perform query for all CruiseItems in db
     InventoryArr = query.cursor.fetchall()
-    print(InventoryArr)
-    return jsonify(InventoryArr)
+    query = conn.execute("select itemID, cruiseLinerID, roomID, available, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration from cruiseItem;")
+    result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
+    return jsonify(result)
 
 def get_cruiseitemArr_byLoc(Location):
     conn = db_connect.connect() #connect to database
     query = conn.execute("select * from Cruiseitem where fromLocation ='%s'"%str(Location))
     InventoryArr = query.cursor.fetchall()
-    print(InventoryArr)
-    return jsonify(query) #convert query result into a json
+    query = conn.execute("select itemID, cruiseLinerID, roomID, available, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration from cruiseItem where fromLocation ='%s';"%str(Location))
+    result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
+    #print(InventoryArr)
+    return jsonify(result) #convert query result into a json
 
 @app.route('/inventory', methods=['GET'])
 def get_cruiseitems():
