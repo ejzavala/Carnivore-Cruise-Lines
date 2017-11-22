@@ -6,7 +6,7 @@ from json import dumps
 
 db_connect = create_engine('sqlite:///Carnivorecruise.sqlite')
 app = Flask(__name__)
-app.json_encoder.default = lambda self, o: o.to_joson()
+app.json_encoder.default = lambda self, o: o.to_json()
 app.app_context()
 
 # Array to store the objects
