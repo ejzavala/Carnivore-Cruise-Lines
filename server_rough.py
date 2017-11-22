@@ -31,9 +31,9 @@ def get_cruiseitems():
     return jsonify(status="ok",InventoryArr=get_cruiseitemArr())
 
 
-#@app.route('/inventory/location/< location >', methods=['GET'])
-#def get_cruiseitems_by_location(location):
-#    return jsonify(status="ok", InventoryArr=get_cruiseitems_by_location(location))
+@app.route('/inventory/location/< Location >', methods=['GET'])
+def get_cruiseitems_by_location(Location):
+    return jsonify(status="ok", InventoryArr=get_cruiseitemArr_byLoc(Location))
 
 
 if __name__ == '__main__':
