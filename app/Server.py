@@ -78,11 +78,10 @@ def get_cruiseitems():
     return jsonify(status="ok",InventoryArr=get_cruiseitemArr())
 
 #example call would be get_cruiseitems_by_location('Starkville', 'MS')
-@app.route('/inventory/location/<state>/<city>', methods=['GET'])
-def get_cruiseitems_by_location(city, state):
-    loc_and_state = str(city + ',' + ' ' + state)
-    print (loc_and_state)
-    return jsonify(status="ok", InventoryArr=get_cruiseitemArr_byLoc(loc_and_state))
+@app.route('/inventory/location/<loc>', methods=['GET'])
+def get_cruiseitems_by_location(loc):
+    print (loc)
+    return jsonify(status="ok", InventoryArr=get_cruiseitemArr_byLoc(loc))
 
 @app.route('/system/history', methods=['GET'])
 def get_cruisehistory():
