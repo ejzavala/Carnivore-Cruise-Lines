@@ -43,13 +43,10 @@ def add_to_history(cruise_item_idnum):
     conn = db_connect.connect()
     queryhistory = conn.execute("SELECT numberSold FROM cruiseHistory WHERE itemID = '%s'"%(cruise_item_idnum))
     numberactuallysold = queryhistory.cursor.fetchall()
-    #print(numberactuallysold)
     if len(numberactuallysold) != 0:
-        numberactuallysold = queryhistory.cursor.fetchall()
-        numberactuallysold = numberactuallysold[0][0]
-        print(numberactuallysold)
-        numberactuallysold = int(numberactuallysold+1)
-        query = conn.execute("UPDATE cruiseHistory SET numberSold = (?) WHERE itemID = (?)",(numberactuallysold, cruise_item_idnum))
+        sold = numberactuallysold[0][0]
+        sold = (sold + 1)
+        query = conn.execute("UPDATE cruiseHistory SET numberSold = (?) WHERE itemID = (?)",(sold, cruise_item_idnum))
     else:
         query = conn.execute("INSERT INTO cruiseHistory (itemID, numberSold) VALUES ('%s', 1)" %str(cruise_item_idnum))
 
@@ -63,8 +60,7 @@ def put_changeAvail(cruise_item_id):
     else:
         return False
 
-
-@app.route('/system/purchase/<item_id>')
+@app.route('/system/purchase/<item_id>', methods=['PUT'])
 def put_change_avail_api(item_id):
     if (put_changeAvail(item_id) == False):
         return jsonify(status="Item you tried to purchase does not exist in database! WHAT WERE YOU THINKING?")
@@ -87,7 +83,33 @@ def get_cruiseitems_by_location(city, state):
 def get_cruisehistory():
     return jsonify(status="ok", HistoryArr = get_cruiseHistory())
 
+@app.route('/inventory/new/<itemID>/<linerID>/<roomID>/<availablity>/<cost>/<name>/<description>/<roomCapacity>/<fromLocation>/<departureDate>/<returnDate>/<duration>', methods=['POST'])
+def insertInventory(itemID, linerID, roomID, availablity, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration):
+    conn = db_connect.connect()
+    checkQuery = conn.execute("SELECT ItemID FROM cruiseItem WHERE itemID = '%s'"%(itemID))
+    test = checkQuery.cursor.fetchall()
+    if len(test) != 0:
+        return jsonify(status = "failed to add")
+    else:
+        query = conn.execute("INSERT INTO cruiseItem (itemID, cruiseLinerID, roomID, available, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration) VALUES (?,?,?,?,?,?,?,?, ?,?,?,?)", (itemID, linerID, roomID, availablity, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration))
+        return jsonify(status="added")
 
+@app.route('/inventory/<itemID>', methods=['DELETE'])
+def deleteInventoryItem(itemID):
+    conn= db_connect.connect()
+    query = conn.execute("DELETE FROM cruiseItem WHERE itemID = (?)", (itemID))
+    return jsonify(status = "Deleted")
+
+@app.route('/inventory/<itemID>/<availablity>', methods=['PUT'])
+def updateAvailablity(itemID, availablity):
+    conn=db_connect.connect()
+    checkQuery = conn.execute("SELECT ItemID FROM cruiseItem WHERE itemID = '%s'" % (itemID))
+    test = checkQuery.cursor.fetchall()
+    if len(test) != 0:
+        query=conn.execute("UPDATE cruiseItem SET available = (?) WHERE itemID = '%s'"%str(itemID), (availablity))
+        return jsonify(status="updated")
+    else:
+        return jsonify(status="No target")
 
 if __name__ == '__main__':
     app.run("0.0.0.0", 80)
