@@ -55,15 +55,20 @@ def put_changeAvail(cruise_item_id):
     conn = db_connect.connect()
     query = conn.execute("SELECT ItemID FROM cruiseItem WHERE itemID = '%s'"%(cruise_item_id))
     if (len(query.cursor.fetchall()) != 0):
-        query = conn.execute("UPDATE cruiseItem SET available = 0 WHERE itemID = '%s'"%str(cruise_item_id))
-        return True
+        checkQuery = conn.execute("SELECT available FROM cruiseItem WHERE itemID = '%s'"%(cruise_item_id))
+        curAvail = checkQuery.cursor.fetchall()
+        if curAvail[0][0] == 0:
+            return False
+        else:
+            query = conn.execute("UPDATE cruiseItem SET available = 0 WHERE itemID = '%s'"%str(cruise_item_id))
+            return True
     else:
         return False
 
 @app.route('/system/purchase/<item_id>', methods=['PUT'])
 def put_change_avail_api(item_id):
     if (put_changeAvail(item_id) == False):
-        return jsonify(status="Item you tried to purchase does not exist in database! WHAT WERE YOU THINKING?")
+        return jsonify(status="Item you tried to purchase an unavailable item")
     else:
         add_to_history(item_id)
         return jsonify (status="Item successfully purchased")
