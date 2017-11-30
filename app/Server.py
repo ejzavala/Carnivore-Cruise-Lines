@@ -1,43 +1,12 @@
 from flask import Flask, jsonify, abort, request
 from flask_cors import CORS, cross_origin
-from cruiseItem import cruiseItem
 from sqlalchemy import create_engine
-from json import dumps
 
 db_connect = create_engine('sqlite:///Carnivorecruise.sqlite')
 app = Flask(__name__)
 CORS(app)
 app.json_encoder.default = lambda self, o: o.to_json()
 app.app_context()
-
-# Array to store the objects
-InventoryArr = {}
-HistoryArr = {}
-
-def get_cruiseitemArr():
-    conn = db_connect.connect() # connect to database
-    query = conn.execute("select * from CruiseItem") #Perform query for all CruiseItems in db
-    InventoryArr = query.cursor.fetchall()
-    query = conn.execute("select itemID, cruiseLinerID, roomID, available, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration from cruiseItem;")
-    result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
-    return result
-
-def get_cruiseitemArr_byLoc(Location):
-    conn = db_connect.connect() #connect to database
-    query = conn.execute("select * from Cruiseitem where fromLocation ='%s'"%str(Location))
-    InventoryArr = query.cursor.fetchall()
-    query = conn.execute("select itemID, cruiseLinerID, roomID, available, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration from cruiseItem where fromLocation ='%s';"%str(Location))
-    result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
-    #print(InventoryArr)
-    return result #convert query result into a json
-
-def get_cruiseHistory():
-    conn = db_connect.connect() # connect to database
-    query = conn.execute("select * from cruiseHistory")
-    HistoryArr = query.cursor.fetchall()
-    query = conn.execute("select itemID, numberSold from cruiseHistory;")
-    result = {'data': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
-    return result
 
 def add_to_history(cruise_item_idnum):
     conn = db_connect.connect()
@@ -75,17 +44,33 @@ def put_change_avail_api(item_id):
 
 @app.route('/inventory', methods=['GET'])
 def get_cruiseitems():
-    return jsonify(status="ok",InventoryArr=get_cruiseitemArr())
+    conn = db_connect.connect()  # connect to database
+    query = conn.execute("select * from CruiseItem")  # Perform query for all CruiseItems in db
+    InventoryArr = query.cursor.fetchall()
+    query = conn.execute(
+        "select itemID, cruiseLinerID, roomID, available, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration from cruiseItem;")
+    result = {'inventory': [dict(zip(tuple(query.keys()), i)) for i in query.cursor]}
+    return jsonify(result)
 
 #example call would be get_cruiseitems_by_location('Starkville', 'MS')
 @app.route('/inventory/location/<loc>', methods=['GET'])
 def get_cruiseitems_by_location(loc):
-    print (loc)
-    return jsonify(status="ok", InventoryArr=get_cruiseitemArr_byLoc(loc))
+    conn = db_connect.connect()  # connect to database
+    query = conn.execute("select * from Cruiseitem where fromLocation ='%s'" % str(loc))
+    InventoryArr = query.cursor.fetchall()
+    query = conn.execute(
+        "select itemID, cruiseLinerID, roomID, available, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration from cruiseItem where fromLocation ='%s';" % str(loc))
+    result = {'inventory': [dict(zip(tuple(query.keys()), i)) for i in query.cursor]}
+    return jsonify(result)
 
 @app.route('/system/history', methods=['GET'])
 def get_cruisehistory():
-    return jsonify(status="ok", HistoryArr = get_cruiseHistory())
+    conn = db_connect.connect()  # connect to database
+    query = conn.execute("select * from cruiseHistory")
+    HistoryArr = query.cursor.fetchall()
+    query = conn.execute("select itemID, numberSold from cruiseHistory;")
+    result = {'history': [dict(zip(tuple(query.keys()), i)) for i in query.cursor]}
+    return jsonify(result)
 
 @app.route('/inventory/new/<itemID>/<linerID>/<roomID>/<availablity>/<cost>/<name>/<description>/<roomCapacity>/<fromLocation>/<departureDate>/<returnDate>/<duration>', methods=['POST'])
 def insertInventory(itemID, linerID, roomID, availablity, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration):
