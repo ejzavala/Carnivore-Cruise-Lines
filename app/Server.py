@@ -37,7 +37,7 @@ def put_changeAvail(cruise_item_id):
 @app.route('/system/purchase/<item_id>', methods=['PUT'])
 def put_change_avail_api(item_id):
     if (put_changeAvail(item_id) == False):
-        return jsonify(status="Item you tried to purchase an unavailable item")
+        return jsonify(status = "item could not be selected"), 400
     else:
         add_to_history(item_id)
         return jsonify (status="Item successfully purchased")
@@ -78,7 +78,7 @@ def insertInventory(itemID, linerID, roomID, availablity, cost, name, descriptio
     checkQuery = conn.execute("SELECT ItemID FROM cruiseItem WHERE itemID = '%s'"%(itemID))
     test = checkQuery.cursor.fetchall()
     if len(test) != 0:
-        return jsonify(status = "failed to add")
+        return jsonify(status = "failed to add"), 400
     else:
         query = conn.execute("INSERT INTO cruiseItem (itemID, cruiseLinerID, roomID, available, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration) VALUES (?,?,?,?,?,?,?,?, ?,?,?,?)", (itemID, linerID, roomID, availablity, cost, name, description, roomCapacity, fromLocation, departureDate, returnDate, duration))
         return jsonify(status="added")
@@ -98,7 +98,7 @@ def updateAvailablity(itemID, availablity):
         query=conn.execute("UPDATE cruiseItem SET available = (?) WHERE itemID = '%s'"%str(itemID), (availablity))
         return jsonify(status="updated")
     else:
-        return jsonify(status="No target")
+        return jsonify(status="No target"), 400
 
 @app.route('/system/reset', methods=['PUT'])
 def resetData():
