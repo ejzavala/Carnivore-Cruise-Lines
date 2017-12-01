@@ -100,5 +100,11 @@ def updateAvailablity(itemID, availablity):
     else:
         return jsonify(status="No target")
 
+@app.route('/system/reset', methods=['PUT'])
+def resetData():
+    conn = db_connect.connect()
+    query = conn.execute("UPDATE cruiseItem SET available = 1")
+    return jsonify(status="Data Reset")
+
 if __name__ == '__main__':
     app.run("0.0.0.0", 80)
